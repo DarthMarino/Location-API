@@ -1,6 +1,6 @@
 development:
   clients:
     default:
-      uri: [MongoDB uri copied from Atlas Mongodb]
+      uri: [URI OF MONGODB]
       options:
         server_selection_timeout: 5
