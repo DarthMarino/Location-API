@@ -1,6 +1,6 @@
 development:
   clients:
     default:
-      uri: [URI OF MONGODB]
+      uri: [URI FROM MONGODB]
       options:
         server_selection_timeout: 5
