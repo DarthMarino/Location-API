@@ -26,6 +26,9 @@ GEM
     rack (2.2.2)
     rack-protection (2.0.8.1)
       rack
+    rgeo (2.1.1)
+    rgeo-geojson (2.1.1)
+      rgeo (>= 1.0.0)
     ruby2_keywords (0.0.2)
     sinatra (2.0.8.1)
       mustermann (~> 1.0)
@@ -50,6 +53,7 @@ PLATFORMS
 
 DEPENDENCIES
   mongoid
+  rgeo-geojson (~> 2.1, >= 2.1.1)
   sinatra
   sinatra-contrib
 

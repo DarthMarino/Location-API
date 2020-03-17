@@ -1,6 +1,7 @@
 # Gems to use
 require 'sinatra'
 require 'sinatra/namespace'
+require 'rgeo/geo_json'
 require 'mongoid'
 
 # DB Setup
@@ -12,7 +13,7 @@ class Location
   include Mongoid::Document
 
   field :name, type: String
-  field :position, type: Array
+  field :position, type: Point
 
   validates :name, presence: true
   validates :position, presence: true
@@ -55,11 +56,9 @@ namespace '/api/v1' do
     end
 
     def json_params
-      begin
-        JSON.parse(request.body.read)
+      JSON.parse(request.body.read)
       rescue
         halt 400, { message: 'Invalid JSON' }.to_json
-      end
     end
 
     def location
@@ -76,16 +75,16 @@ namespace '/api/v1' do
   end
 
   get '/locations' do
-      locations = Location.all
+    locations = Location.all
 
-      [:name, :position].each do |filter|
-        locations = locations.send(filter, params[filter]) if params[filter]
-      end
+    [:name, :position].each do |filter|
+      locations = locations.send(filter, params[filter]) if params[filter]
+    end
 
-      locations.map { |location| LocationSerializer.new(location) }.to_json
+    locations.map { |location| LocationSerializer.new(location) }.to_json
   end
 
-  get '/locations/:id' do |id|
+  get '/locations/:id' do
     halt_if_not_found!
     serialize(location)
   end
@@ -98,13 +97,13 @@ namespace '/api/v1' do
     status 201
   end
 
-  patch '/locations/:id' do |id|
+  patch '/locations/:id' do
     halt_if_not_found!
     halt 422, serialize(location) unless location.update_attributes(json_params)
     serialize(location)
   end
 
-  delete '/locations/:id' do |id|
+  delete '/locations/:id' do
     location.destroy if location
     status 204
   end
