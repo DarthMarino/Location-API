@@ -1,26 +1,31 @@
 # Gems to use
+require 'mongoid'
+require 'mongoid/geospatial'
+require 'ostruct'
 require 'sinatra'
 require 'sinatra/namespace'
-require 'rgeo/geo_json'
-require 'mongoid'
+
 
 # DB Setup
-Mongoid.load!(File.join(File.dirname(__FILE__), 'config', 'mongoid.yml'))
+Mongoid.load!(File.join(File.dirname(__FILE__), '.config', 'mongoid.yml'))
 
 # Models
 # Each of the places to be added on the map
 class Location
   include Mongoid::Document
+  include Mongoid::Geospatial
 
   field :name, type: String
-  field :position, type: Point
+  field :location, type: Point
+
+  spatial_index :location
 
   validates :name, presence: true
-  validates :position, presence: true
+  validates :location, presence: true
 
-  index({name: 'text'})
+  index({ name: 'text' })
 
-  scope :name, -> (name) { where(name: /^#{name}/) }
+  scope :name, ->(name) { where(name: /^#{name}/) }
 end
 
 # Serializer
@@ -33,16 +38,17 @@ class LocationSerializer
     data = {
       id:@location.id.to_s,
       name:@location.name,
-      position:@location.position
+      location:@location.location
     }
     data[:errors] = @location.errors if@location.errors.any?
     data
   end
+
 end
 
 # Endpoints
 get '/' do
-  'Welcome to Locations List!'
+  redirect "/api/v1/locations"
 end
 
 namespace '/api/v1' do
@@ -56,7 +62,8 @@ namespace '/api/v1' do
     end
 
     def json_params
-      JSON.parse(request.body.read)
+        json_string = request.body.read
+        JSON.parse(json_string, object_class: OpenStruct)
       rescue
         halt 400, { message: 'Invalid JSON' }.to_json
     end
@@ -75,13 +82,13 @@ namespace '/api/v1' do
   end
 
   get '/locations' do
-    locations = Location.all
+      locations = Location.all
 
-    [:name, :position].each do |filter|
-      locations = locations.send(filter, params[filter]) if params[filter]
-    end
+      [:name, :location].each do |filter|
+        locations = locations.send(filter, params[filter]) if params[filter]
+      end
 
-    locations.map { |location| LocationSerializer.new(location) }.to_json
+      locations.map { |location| LocationSerializer.new(location) }.to_json
   end
 
   get '/locations/:id' do
@@ -90,11 +97,11 @@ namespace '/api/v1' do
   end
 
   post '/locations' do
-    location = Location.new(json_params)
-    halt 422, serialize(location) unless location.save
-
-    response.headers['Location'] = "#{base_url}/api/v1/locations/#{location.id}"
-    status 201
+    datajson = json_params
+    Location.create(
+      name: datajson.name.to_s,
+      location: {latitude: datajson.location[:latitude], longitude: datajson.location[:longitude]}
+    )
   end
 
   patch '/locations/:id' do

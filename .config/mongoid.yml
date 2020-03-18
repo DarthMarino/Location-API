@@ -1,6 +1,6 @@
 development:
   clients:
     default:
-      uri: mongodb+srv://maghi:YSPnKvFaK6Iqhe3W@maghidataweb-8c6e5.mongodb.net/test?retryWrites=true&w=majority
+      uri: mongodb+srv://apiLocation:XBx8PTKdrqy9ZYHn@maghidataweb-8c6e5.mongodb.net/FerreteriasAPI?retryWrites=true&w=majority
       options:
         server_selection_timeout: 5
