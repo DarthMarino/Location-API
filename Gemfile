@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-gem 'mongoid'
+gem 'mongoid', '~> 7.0'
 gem 'mongoid-geospatial'
 gem 'ostruct', '~> 0.1.0'
 gem 'sinatra'
