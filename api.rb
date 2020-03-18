@@ -1,9 +1,10 @@
 # Gems to use
+require 'sinatra'
+require 'sinatra/namespace'
 require 'mongoid'
 require 'mongoid/geospatial'
 require 'ostruct'
-require 'sinatra'
-require 'sinatra/namespace'
+
 
 
 # DB Setup
